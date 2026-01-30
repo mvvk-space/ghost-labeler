@@ -1,0 +1,76 @@
+<!-- Ghost Labeler Global Script -->
+<!-- Paste this into Ghost Admin -> Settings -> Code Injection -> Site Footer -->
+<script>
+    document.addEventListener('click', async function (e) {
+        // Run only if the clicked element is our custom submit button
+        if (e.target && e.target.matches('.custom-label-btn')) {
+            e.preventDefault(); // Prevent default form submission or button behavior
+
+            // Find the parent container
+            const container = e.target.closest('.custom-signup-container');
+            if (!container) return;
+
+            const emailInput = container.querySelector('.custom-email-input');
+            const statusMsg = container.querySelector('.status-msg');
+            const label = container.dataset.label; // Reads the label from data attribute
+
+            // Get email value clearly
+            const email = emailInput ? emailInput.value.trim() : null;
+
+            if (!email || !label) {
+                if (statusMsg) {
+                    statusMsg.innerText = "Please enter a valid email.";
+                    statusMsg.style.color = "red";
+                }
+                return;
+            }
+
+            // User Feedback: Processing
+            if (statusMsg) {
+                statusMsg.innerText = "Processing...";
+                statusMsg.style.color = "#666";
+            }
+            e.target.disabled = true; // Disable button to prevent double submit
+            e.target.innerText = "Submitting...";
+
+            try {
+                // REPLACE THIS URL WITH YOUR DEPLOYED VERCEL/NETLIFY URL
+                // Example: 'https://my-ghost-labeler.vercel.app/api/add-label'
+                const SERVICE_URL = 'https://YOUR_APP_URL.vercel.app/api/add-label';
+
+                const response = await fetch(SERVICE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, label: label })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (statusMsg) {
+                        statusMsg.innerText = "Success! You're on the list.";
+                        statusMsg.style.color = "green";
+                    }
+                    if (emailInput) emailInput.value = ""; // Clear input
+                    e.target.innerText = "Done";
+                } else {
+                    console.error('Server Error:', data);
+                    if (statusMsg) {
+                        statusMsg.innerText = "Something went wrong. Please try again.";
+                        statusMsg.style.color = "red";
+                    }
+                    e.target.innerText = "Try Again";
+                    e.target.disabled = false;
+                }
+            } catch (err) {
+                console.error('Network Error:', err);
+                if (statusMsg) {
+                    statusMsg.innerText = "Connection failed.";
+                    statusMsg.style.color = "red";
+                }
+                e.target.innerText = "Try Again";
+                e.target.disabled = false;
+            }
+        }
+    });
+</script>

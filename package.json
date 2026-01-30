@@ -1,0 +1,19 @@
+{
+  "name": "ghost-labeler-service",
+  "version": "1.0.0",
+  "description": "Service to label Ghost members (new and existing) via HTML cards",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@tryghost/admin-api": "^1.13.10",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

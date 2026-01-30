@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Labeler Check-in</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f5f7;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 { margin-top: 0; color: #333; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; color: #666; font-size: 0.9rem; }
+        input[type="email"], input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box; /* Important for padding */
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover { background-color: #333; }
+        #status { margin-top: 1rem; text-align: center; font-size: 0.9rem; min-height: 1.25em; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Register for Class</h2>
+    <p>Sign up to register your spot in next week's class.</p>
+    
+    <form id="labelForm">
+        <!-- Hidden input for the label you want to apply for this specific card -->
+        <input type="hidden" id="labelInput" value="2026-01-12 class">
+        
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+        
+        <button type="submit" id="submitBtn">Register Now</button>
+    </form>
+    
+    <div id="status"></div>
+</div>
+
+<script>
+    document.getElementById('labelForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const label = document.getElementById('labelInput').value;
+        const statusDiv = document.getElementById('status');
+        const btn = document.getElementById('submitBtn');
+
+        // Reset status
+        statusDiv.textContent = 'Processing...';
+        statusDiv.className = '';
+        btn.disabled = true;
+
+        try {
+            // Replace with your actual service URL (localhost for testing)
+            const SERVICE_URL = 'http://localhost:3000/api/label-member';
+            
+            const response = await fetch(SERVICE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, label })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                statusDiv.textContent = 'Success: ' + data.message;
+                statusDiv.className = 'success';
+                document.getElementById('email').value = ''; // Clear input
+            } else {
+                throw new Error(data.error || 'Unknown error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            statusDiv.textContent = 'Error: ' + error.message;
+            statusDiv.className = 'error';
+        } finally {
+            btn.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>
